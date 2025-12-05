@@ -1,0 +1,107 @@
+/* ProductDetail.css */
+
+/* Cân chỉnh ảnh sản phẩm */
+img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* Nút màu sắc - phiên bản */
+.color-option {
+  transition: all 0.3s ease;
+}
+
+.color-option:hover {
+  border-color: #888;
+  box-shadow: 0 0 8px rgba(0, 0, 0, 0.08);
+}
+
+.color-option.selected {
+  border-color: #0066cc;
+  background-color: #f0f8ff;
+  transform: scale(1.02);
+  box-shadow: 0 2px 12px rgba(0, 102, 204, 0.2);
+}
+
+/* Check icon */
+.color-option .check-icon {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  color: #0066cc;
+  background: white;
+  border-radius: 50%;
+  font-size: 14px;
+}
+
+/* Nút chính */
+.button-buy-now,
+.button-add-to-cart {
+  transition: all 0.3s ease;
+  font-weight: 500;
+}
+
+.button-add-to-cart {
+  background-color: #f57224 !important;
+  border: none !important;
+  color: white;
+}
+
+.button-add-to-cart:hover {
+  background-color: #e55d13 !important;
+}
+
+.button-buy-now {
+  background-color: #d70018 !important;
+  border: none !important;
+  color: white;
+}
+
+.button-buy-now:hover {
+  opacity: 0.9;
+}
+
+/* Hình ảnh thumbnail */
+.image-thumbnail {
+  width: 60px;
+  height: 60px;
+  object-fit: cover;
+  border-radius: 6px;
+  border: 2px solid transparent;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.image-thumbnail:hover {
+  border-color: #999;
+}
+
+.image-thumbnail.active {
+  border-color: #0066cc;
+  box-shadow: 0 0 5px rgba(0, 102, 204, 0.3);
+}
+
+/* Chính sách */
+.policy-box {
+  background-color: #f9f9f9;
+  border-radius: 12px;
+  border: 1px solid #ddd;
+  padding: 16px;
+  text-align: center;
+  transition: all 0.3s ease;
+}
+
+.policy-box:hover {
+  background-color: #f0f8ff;
+  border-color: #cce6ff;
+}
+/* Ẩn scrollbar trên Chrome, Edge, Safari */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* Ẩn scrollbar trên Firefox */
+.no-scrollbar {
+  scrollbar-width: none;
+}
