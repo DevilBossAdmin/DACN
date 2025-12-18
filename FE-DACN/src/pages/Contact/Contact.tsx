@@ -41,8 +41,8 @@ const Contact = () => {
                 <FaMapMarkerAlt />
               </div>
               <h3>Địa chỉ</h3>
-              <p>123 Đường ABC, Quận XYZ</p>
-              <p>Thành phố Hồ Chí Minh</p>
+              <p>Trường Đại Học Công Nghệ Đông Á</p>
+              <p>Tào Nhà Polyco, đường Trịnh Văn Bô, quận Nam Từ Liêm, thành phố Hà Nội</p>
             </div>
 
             <div className="info-card">
@@ -51,7 +51,7 @@ const Contact = () => {
               </div>
               <h3>Điện thoại</h3>
               <p>Hotline: 1900 1234</p>
-              <p>Hỗ trợ: 0123 456 789</p>
+              <p>Hỗ trợ: 083.267.2005</p>
             </div>
 
             <div className="info-card">
@@ -59,8 +59,8 @@ const Contact = () => {
                 <FaEnvelope />
               </div>
               <h3>Email</h3>
-              <p>info@example.com</p>
-              <p>support@example.com</p>
+              <p>20233698@eaut.edu.vn</p>
+              <p>Binhb479@gmail.com</p>
             </div>
 
             <div className="info-card">
@@ -142,14 +142,15 @@ const Contact = () => {
 
       {/* Map Section */}
       <section className="map-section">
-        <iframe
-          src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3919.4241674197956!2d106.69141431533417!3d10.777167162163188!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x31752f3a9d8d1bb3%3A0xc4eca1b1726b7e87!2sNguyen%20Hue%20Walking%20Street!5e0!3m2!1sen!2s!4v1647007193923!5m2!1sen!2s"
-          width="100%"
-          height="450"
-          style={{ border: 0 }}
-          allowFullScreen
-          loading="lazy"
-        ></iframe>
+          <iframe
+              title="Đại học Công nghệ Đông Á"
+              src="https://www.google.com/maps?q=Đại%20học%20Công%20nghệ%20Đông%20Á&output=embed"
+              width="100%"
+              height="380"
+              style={{ border: 0, borderRadius: '12px' }}
+              loading="lazy"
+              referrerPolicy="no-referrer-when-downgrade"
+          />
       </section>
     </div>
   );

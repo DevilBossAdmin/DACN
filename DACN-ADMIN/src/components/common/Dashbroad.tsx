@@ -22,10 +22,15 @@ const DashLayout: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
+  // key đang được chọn
   const selectedKey = location.pathname;
-  const openKey = selectedKey.startsWith('/dashboard/capacity') || selectedKey.startsWith('/dashboard/color')
-    ? ['product-attributes']
-    : [];
+
+  // mở group "Sản phẩm" khi đang ở capacity / product
+  const openKey =
+    selectedKey.startsWith('/dashboard/capacity') ||
+    selectedKey.startsWith('/dashboard/product')
+      ? ['product-attributes']
+      : [];
 
   const menuItems = [
     {
@@ -54,22 +59,21 @@ const DashLayout: React.FC = () => {
           label: 'Series Sản Phẩm',
         },
         {
-      key: '/dashboard/product',
-      icon: <MobileOutlined />,
-      label: 'Sản Phẩm',
-    },
+          key: '/dashboard/product',
+          icon: <MobileOutlined />,
+          label: 'Sản Phẩm',
+        },
       ],
     },
-    
     {
       key: '/dashboard/orders',
       icon: <ShoppingOutlined />,
       label: 'Đơn Hàng',
     },
-     {
+    {
       key: '/dashboard/vouchers',
       icon: <ShoppingOutlined />,
-      label: 'Mã Giamr Gía',
+      label: 'Mã Giảm Giá',
     },
     {
       key: '/dashboard/banners',

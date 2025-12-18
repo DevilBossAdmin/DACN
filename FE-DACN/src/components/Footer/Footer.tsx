@@ -11,7 +11,7 @@ const Footer: React.FC = () => {
           <br />
           (Thời gian làm việc: 09h00 - 21h00)
         </h4>
-        <div className="phone-number">037.222.9304</div>
+        <div className="phone-number">083.267.2005</div>
         <ul>
           <li>
             <a href="#">
