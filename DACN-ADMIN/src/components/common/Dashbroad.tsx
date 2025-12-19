@@ -80,7 +80,7 @@ const DashLayout: React.FC = () => {
       icon: <PictureOutlined />,
       label: 'Banner',
     },
-    {
+     /*{
       key: '/dashboard/flashsale',
       icon: <BgColorsOutlined />,
       label: 'Flash Sale',
@@ -94,7 +94,7 @@ const DashLayout: React.FC = () => {
       key: '/dashboard/comments',
       icon: <CommentOutlined />,
       label: 'Bình Luận',
-    },
+    }, */
   ];
 
   return (
