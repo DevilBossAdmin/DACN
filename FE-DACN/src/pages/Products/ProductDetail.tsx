@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useParams, useNavigate } from "react-router-dom";
 import {
   StarFilled,
@@ -16,9 +16,25 @@ import { ChevronLeft, ChevronRight, Star } from "lucide-react";
 import "./ProductDetail.css";
 
 const formatPrice = (price: number) =>
-  Number(price || 0).toLocaleString("vi-VN", { style: "currency", currency: "VND" });
+  Number(price || 0).toLocaleString("vi-VN", {
+    style: "currency",
+    currency: "VND",
+  });
 
 const isObjectId = (s: string) => /^[a-f\d]{24}$/i.test(s);
+
+// Tách "tên model" khỏi title để lọc group đúng (không lẫn iPhone 14/15/16)
+const baseName = (t: string) =>
+  (t || "")
+    .toLowerCase()
+    .trim()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/đ/g, "d")
+    // bỏ phần dung lượng cuối (128GB/256GB/512GB/1TB...) và phần đằng sau
+    .replace(/\s*(\d+)\s*(gb|tb)\b.*$/i, "")
+    .replace(/\s+/g, " ")
+    .trim();
 
 async function fetchProductByParam(param: string) {
   if (isObjectId(param)) {
@@ -49,6 +65,7 @@ const ProductDetail = () => {
     scrollRef.current.scrollBy({ left: dir === "left" ? -120 : 120, behavior: "smooth" });
   };
 
+  // Load product theo id/slug
   useEffect(() => {
     (async () => {
       setLoading(true);
@@ -65,24 +82,51 @@ const ProductDetail = () => {
     })();
   }, [param]);
 
+  // Load group theo groupId và LỌC theo baseName để không nhảy sang model khác
   useEffect(() => {
     const gid = product?.groupId?._id || product?.groupId;
-    if (!gid) return;
+    if (!gid || !product?._id) return;
+
     (async () => {
       try {
         const { data } = await axios.get(`/product/group/${gid}`);
-        setGroup(data?.data ?? data ?? []);
+        const list = data?.data ?? data ?? [];
+        const base = baseName(product?.title ?? product?.name);
+
+        const filtered = Array.isArray(list)
+          ? list.filter((x: any) => baseName(x?.title ?? x?.name) === base)
+          : [];
+
+        // Nếu API không trả về sản phẩm hiện tại, add vào để hiển thị option "đang chọn"
+        const hasCurrent = filtered.some((x: any) => String(x?._id) === String(product?._id));
+        const finalList = hasCurrent ? filtered : [product, ...filtered];
+
+        setGroup(finalList);
       } catch (e) {
         console.error("Lỗi lấy group:", e);
+        setGroup([]);
       }
     })();
   }, [product]);
 
+  // Lấy variant theo màu đang chọn
   const variant = product?.variants?.[selectedColor];
+
+  // Danh sách ảnh ưu tiên variant -> fallback product
+  const images: string[] = useMemo(() => {
+    const vImgs = Array.isArray(variant?.imageUrl) ? variant.imageUrl : [];
+    const pImgs = Array.isArray(product?.imageUrl) ? product.imageUrl : [];
+    return vImgs.length ? vImgs : pImgs;
+  }, [variant, product]);
+
+  const cover = images[selectedImage] ?? images[0] ?? "";
+
+  const canBuy = !!variant && Number(variant?.stock ?? 0) > 0;
 
   const handleAddToCart = async () => {
     try {
-      if (!variant || variant.stock === 0) return;
+      if (!variant) return alert("Vui lòng chọn màu/biến thể trước!");
+      if (variant.stock === 0) return alert("Sản phẩm đã hết hàng");
 
       const token = localStorage.getItem("token");
       if (!token) return alert("Bạn cần đăng nhập để thêm vào giỏ hàng");
@@ -108,7 +152,8 @@ const ProductDetail = () => {
 
   const handleBuyNow = async () => {
     try {
-      if (!variant || variant.stock === 0) return alert("Sản phẩm đã hết hàng");
+      if (!variant) return alert("Vui lòng chọn màu/biến thể trước!");
+      if (variant.stock === 0) return alert("Sản phẩm đã hết hàng");
 
       const token = localStorage.getItem("token");
       if (!token) return alert("Bạn cần đăng nhập để mua hàng");
@@ -119,7 +164,7 @@ const ProductDetail = () => {
         quantity: 1,
         price: variant.price,
         name: product.title ?? product.name,
-        image: variant.imageUrl?.[0],
+        image: variant.imageUrl?.[0] ?? product.imageUrl?.[0],
       };
 
       await axios.post(
@@ -164,18 +209,6 @@ const ProductDetail = () => {
 
   const title = product.title ?? product.name ?? "Sản phẩm";
 
-// Chuẩn hóa danh sách ảnh dựa trên biến thể hoặc sản phẩm
-const images: string[] =
-  Array.isArray(variant?.imageUrl) && variant.imageUrl.length > 0
-    ? variant.imageUrl
-    : Array.isArray(product?.imageUrl) && product.imageUrl.length > 0
-    ? product.imageUrl
-    : [];
-
-// Ảnh đang hiển thị
-const cover = images[selectedImage] ?? images[0] ?? "";
-
-
   return (
     <div className="max-w-[1200px] mx-auto px-4 py-6">
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -193,8 +226,8 @@ const cover = images[selectedImage] ?? images[0] ?? "";
             )}
           </div>
 
-          {/* Thumbnails */}
-          {Array.isArray(variant?.imageUrl) && variant.imageUrl.length > 0 && (
+          {/* Thumbnails (dùng images chung) */}
+          {images.length > 0 && (
             <div className="relative">
               <button
                 onClick={() => scroll("left")}
@@ -212,7 +245,7 @@ const cover = images[selectedImage] ?? images[0] ?? "";
                   </span>
                 </div>
 
-                {variant.imageUrl.map((img: string, i: number) => (
+                {images.map((img: string, i: number) => (
                   <button
                     key={i}
                     onClick={() => setSelectedImage(i)}
@@ -279,9 +312,9 @@ const cover = images[selectedImage] ?? images[0] ?? "";
                 {group.map((item) => (
                   <Link
                     key={item._id}
-                    to={`/product/${item._id}`} // dùng _id để chắc chắn
+                    to={`/product/${item._id}`}
                     className={`px-3 py-1.5 rounded-full text-sm border ${
-                      item._id === product._id
+                      String(item._id) === String(product._id)
                         ? "bg-blue-600 text-white border-blue-600"
                         : "bg-white border-gray-300 text-gray-700 hover:border-blue-400"
                     }`}
@@ -294,14 +327,17 @@ const cover = images[selectedImage] ?? images[0] ?? "";
           )}
 
           {/* Biến thể / màu sắc */}
-          {Array.isArray(product.variants) && product.variants.length > 0 && (
+          {Array.isArray(product?.variants) && product.variants.length > 0 && (
             <div>
               <h3 className="font-medium text-gray-800 mb-2">Chọn màu:</h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {product.variants.map((v: any, idx: number) => (
                   <div
-                    key={idx}
-                    onClick={() => setSelectedColor(idx)}
+                    key={v?._id ?? idx}
+                    onClick={() => {
+                      setSelectedColor(idx);
+                      setSelectedImage(0);
+                    }}
                     className={`flex items-center gap-2 border rounded-xl p-2 cursor-pointer transition ${
                       selectedColor === idx
                         ? "border-blue-500 bg-blue-50"
@@ -309,7 +345,7 @@ const cover = images[selectedImage] ?? images[0] ?? "";
                     } ${v.stock === 0 ? "opacity-60" : ""}`}
                   >
                     <img
-                      src={v.imageUrl?.[0]}
+                      src={v.imageUrl?.[0] ?? product?.imageUrl?.[0]}
                       alt={v.attributes?.[0]?.attributeValueId?.value || "Màu"}
                       className="w-14 h-14 object-contain rounded"
                     />
@@ -343,7 +379,7 @@ const cover = images[selectedImage] ?? images[0] ?? "";
               icon={<ShoppingCartOutlined />}
               onClick={handleAddToCart}
               className="h-12 w-full sm:w-auto px-6 text-base bg-[#0066cc] hover:bg-blue-700 border-none"
-              disabled={variant?.stock === 0}
+              disabled={!canBuy}
             >
               Thêm vào giỏ hàng
             </Button>
@@ -351,7 +387,7 @@ const cover = images[selectedImage] ?? images[0] ?? "";
               type="default"
               onClick={handleBuyNow}
               className="h-12 w-full sm:w-auto px-6 text-base bg-[#004a99] text-white border-none hover:opacity-90"
-              disabled={variant?.stock === 0}
+              disabled={!canBuy}
             >
               Mua ngay
             </Button>
