@@ -9,7 +9,6 @@ import {
   Switch,
   message,
   Select,
-  Spin,
 } from "antd";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
@@ -18,7 +17,7 @@ import { toast } from "react-toastify";
 const CreateFlashSale = () => {
   const [form] = Form.useForm();
   const navigate = useNavigate();
-  const [productOptions, setProductOptions] = useState([]);
+  const [productOptions, setProductOptions] = useState<any[]>([]);
   const [loadingProducts, setLoadingProducts] = useState(false);
 
   // ✅ Gọi API lấy danh sách sản phẩm
@@ -26,7 +25,9 @@ const CreateFlashSale = () => {
     const fetchProducts = async () => {
       try {
         setLoadingProducts(true);
-        const { data } = await axios.get(`${import.meta.env.VITE_PUBLIC_API_URL}api/product?limit=9999`);
+        const { data } = await axios.get(
+          `${import.meta.env.VITE_PUBLIC_API_URL}api/product?limit=9999`
+        );
         setProductOptions(data.data || []);
       } catch (error) {
         message.error("Không thể tải danh sách sản phẩm");
@@ -38,42 +39,47 @@ const CreateFlashSale = () => {
     fetchProducts();
   }, []);
 
-const onFinish = async (values: any) => {
-  try {
-    // map products sang object { product, salePrice, quantity }
-    const mappedProducts = values.products.map((id: string) => ({
-      product: id,
-      salePrice: 1, // bạn có thể thay bằng input cho từng sp nếu muốn
-      quantity: 1,  // bạn có thể thay bằng input cho từng sp nếu muốn
-    }));
+  // ✅ Tạo flash sale nhiều sản phẩm (POST /api/flashsale/bulk)
+  const onFinish = async (values: any) => {
+    try {
+      const token =
+        localStorage.getItem("token") || localStorage.getItem("accessToken");
 
-    const payload = {
-      title: values.title,
-      products: mappedProducts,
-      discountPercent: values.discountPercent,
-      startTime: values.startTime.toISOString(),
-      endTime: values.endTime.toISOString(),
-      limitQuantity: values.limitQuantity || 0,
-      isActive: values.isActive ?? true,
-    };
+      if (!token) {
+        message.error("Bạn chưa đăng nhập admin (không có token)!");
+        return;
+      }
 
-    console.log("📤 Payload gửi đi:", payload);
+      const mappedProducts = (values.products || []).map((id: string) => ({
+        product: id,
+        salePrice: values.salePrice,
+        quantity: values.quantity,
+      }));
 
-    await axios.post(
-      `${import.meta.env.VITE_PUBLIC_API_URL}api/flashsale`,
-      payload
-    );
+      const payload = {
+        // title giữ để hiển thị UI (BE có thể ignore)
+        title: values.title,
+        products: mappedProducts,
+        discountPercent: values.discountPercent,
+        startTime: values.startTime.toISOString(),
+        endTime: values.endTime.toISOString(),
+        limitQuantity: values.limitQuantity || 0,
+        isActive: values.isActive ?? true,
+      };
 
-    toast.success("✅ Tạo Flash Sale thành công!");
-    setTimeout(() => {
-      navigate("/dashboard/flashsale");
-    }, 1500);
-  } catch (err: any) {
-    console.error("❌ Lỗi tạo Flash Sale:", err?.response?.data || err.message);
-    message.error("Tạo Flash Sale thất bại!");
-  }
-};
+      await axios.post(
+        `${import.meta.env.VITE_PUBLIC_API_URL}api/flashsale/bulk`,
+        payload,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
 
+      toast.success("✅ Tạo Flash Sale thành công!");
+      setTimeout(() => navigate("/dashboard/flashsale"), 1200);
+    } catch (err: any) {
+      console.error("❌ Lỗi tạo Flash Sale:", err?.response?.data || err.message);
+      message.error(err?.response?.data?.message || "Tạo Flash Sale thất bại!");
+    }
+  };
 
   return (
     <div>
@@ -117,6 +123,22 @@ const onFinish = async (values: any) => {
             rules={[{ required: true, message: "Vui lòng nhập phần trăm!" }]}
           >
             <InputNumber min={1} max={100} style={{ width: "100%" }} />
+          </Form.Item>
+
+          <Form.Item
+            label="Giá sale (VNĐ)"
+            name="salePrice"
+            rules={[{ required: true, message: "Vui lòng nhập giá sale!" }]}
+          >
+            <InputNumber min={0} style={{ width: "100%" }} />
+          </Form.Item>
+
+          <Form.Item
+            label="Số lượng"
+            name="quantity"
+            rules={[{ required: true, message: "Vui lòng nhập số lượng!" }]}
+          >
+            <InputNumber min={1} style={{ width: "100%" }} />
           </Form.Item>
 
           <Form.Item
