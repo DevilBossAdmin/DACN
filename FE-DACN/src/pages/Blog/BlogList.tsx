@@ -82,7 +82,7 @@ const BlogList: React.FC = () => {
                   {post.excerpt || post.content?.substring(0, 150) + '...'}
                 </p>
                 <div className="blog-list-meta">
-                  <span className="blog-list-author">HOla Phone</span>
+                  <span className="blog-list-author">Thế Giới Di Động</span>
                   <span className="blog-list-read-time">5 phút đọc</span>
                 </div>
               </div>

@@ -1,9 +1,6 @@
 # 🎯 Hướng dẫn API Địa chỉ - Backend
-
 ## 📋 Tổng quan
-
 Backend đã được nâng cấp để hỗ trợ lưu trữ và quản lý thông tin địa chỉ của user:
-
 ### ✅ **Đã hoàn thành:**
 - ✅ **User Model** - Thêm fields địa chỉ
 - ✅ **Register API** - Xử lý địa chỉ khi đăng ký
@@ -13,7 +10,7 @@ Backend đã được nâng cấp để hỗ trợ lưu trữ và quản lý th�
 
 ## 🏗️ Cấu trúc mới
 
-### 1. User Model (BE-DATN/src/model/User.js)
+### 1. User Model (BE-DACN/src/model/User.js)
 ```javascript
 const userSchema = new mongoose.Schema({
   // ... existing fields
@@ -24,7 +21,7 @@ const userSchema = new mongoose.Schema({
 });
 ```
 
-### 2. Register Controller (BE-DATN/src/controllers/User.js)
+### 2. Register Controller (BE-DACN/src/controllers/User.js)
 ```javascript
 // Xử lý các trường địa chỉ khi đăng ký
 const { username, full_name, email, password, phone, address, province, district, ward, role } = req.body;
@@ -40,7 +37,7 @@ const userCreated = await UserModel.create({
 
 ### 3. Validation Schemas
 ```javascript
-// BE-DATN/src/validate/Auth.js
+// BE-DACN/src/validate/Auth.js
 export const registerSchema = Joi.object({
   // ... existing fields
   address: Joi.string().min(5).messages({
@@ -51,7 +48,7 @@ export const registerSchema = Joi.object({
   ward: Joi.string().allow("").optional(),
 });
 
-// BE-DATN/src/validate/User.js
+// BE-DACN/src/validate/User.js
 export const updateUserSchema = Joi.object({
   // ... existing fields
   address: Joi.string().allow("").max(255).optional(),
@@ -119,7 +116,7 @@ PUT /api/users/:id
 
 ### 1. Frontend Integration
 ```typescript
-// FE-DATN/src/services/location.service.ts
+// FE-DACN/src/services/location.service.ts
 const API_BASE_URL = 'http://localhost:8888/api/location';
 
 // Lấy tỉnh/thành phố
@@ -134,7 +131,7 @@ const wards = await locationService.getWards(districtCode);
 
 ### 2. Register với địa chỉ
 ```typescript
-// FE-DATN/src/pages/auth/register.tsx
+// FE-DACN/src/pages/auth/register.tsx
 const onSubmit = async (data: FormData) => {
   const { confirmPassword, ...submitData } = data;
   await axios.post(`http://localhost:8888/api/auth/register`, submitData);

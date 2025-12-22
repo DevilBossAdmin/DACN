@@ -2,8 +2,8 @@
   "swagger": "2.0",
   "info": {
     "version": "1.0.0",
-    "title": "Phone Store API",
-    "description": "API cho hệ thống quản lý cửa hàng bán điện thoại"
+    "title": "API của Website Thế Giới Di Động",
+    "description": "API cho hệ thống quản lý cửa hàng Thế Giới Di Động"
   },
   "host": "localhost:8888",
   "basePath": "/api",

@@ -43,7 +43,7 @@ const ChatIcons: React.FC = () => {
                 📱
               </div>
               <div>
-                <span className="font-semibold text-lg">Tư vấn điện thoại</span>
+                <span className="font-semibold text-lg">Tư vấn sản phẩm</span>
                 <div className="flex items-center text-xs text-blue-100 mt-1">
                   <div className="w-2 h-2 bg-green-400 rounded-full mr-2 animate-pulse"></div>
                   Trực tuyến 24/7

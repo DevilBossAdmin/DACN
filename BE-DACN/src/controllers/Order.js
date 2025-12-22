@@ -188,7 +188,7 @@ export const createOrder = async (req, res) => {
         order._id,
         finalTotal
       );
-      await sendEmail(user.email, '✅ Xác nhận đơn hàng từ HolaPhone', { html });
+      await sendEmail(user.email, '✅ Xác nhận đơn hàng từ Thế Giới Di Động', { html });
     }
 
     return res.status(201).json(order);
