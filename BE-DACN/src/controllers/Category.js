@@ -103,7 +103,7 @@ export const deleteCategory = async (req, res) => {
     // 3. Tìm danh mục mặc định
     const defaultCategory = await Category.findOne({ name: "Điện thoại", deletedAt: null });
     if (!defaultCategory) {
-      return res.status(500).json({ message: "Không tìm thấy danh mục mặc định 'Điện thoại'" });
+      return res.status(500).json({ message: "Không tìm thấy danh mục mặc định 'Sản Phẩm'" });
     }
 
     // 4. Chuyển toàn bộ sản phẩm của danh mục này sang danh mục mặc định

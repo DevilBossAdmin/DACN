@@ -24,7 +24,7 @@ const useChatLogic = () => {
     {
       sender: "ai",
       text:
-        "Xin chào! Tôi có thể giúp bạn tư vấn chọn điện thoại phù hợp. Bạn đang tìm kiếm loại điện thoại nào?",
+        "Xin chào! Tôi có thể giúp bạn tư vấn chọn sản phẩm phù hợp. Bạn đang tìm kiếm loại sản phẩm nào?",
     },
   ]);
   const [loading, setLoading] = useState(false);
