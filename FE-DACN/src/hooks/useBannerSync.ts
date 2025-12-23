@@ -1,9 +1,9 @@
-import { useState, useEffect, useCallback } from 'react';
-import axios from 'axios';
+import { useState, useEffect, useCallback } from "react";
+import axios from "axios";
 
 interface Banner {
-  _id?: string;         // API banners
-  id?: number;          // Local banners
+  _id?: string;
+  id?: number;
   title?: string;
   image: string;
   description?: string;
@@ -14,67 +14,62 @@ interface Banner {
   updatedAt?: string;
 }
 
+// ✅ nên dùng env, fallback localhost
+const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:8888/api";
 
-const API_BASE_URL = 'http://localhost:8888/api';
+// Lấy origin BE để ghép ảnh /uploads/...
+const BE_ORIGIN = API_BASE_URL.replace(/\/api\/?$/, "");
 
 export const useBannerSync = () => {
   const [banners, setBanners] = useState<Banner[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  const normalizeImage = (img?: string) => {
+    if (!img) return "";
+    if (img.startsWith("http")) return img;
+    if (img.startsWith("/")) return `${BE_ORIGIN}${img}`;     // ✅ /uploads/... -> http://localhost:8888/uploads/...
+    return `${BE_ORIGIN}/${img}`;
+  };
+
   const fetchBanners = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
+
       const response = await axios.get(`${API_BASE_URL}/banners`);
-      const allBanners = response.data;
-      // Chỉ lấy banners active và sắp xếp theo order
+
+      // ✅ Backend trả: { data, total, page, limit }
+      const allBanners: Banner[] = response.data?.data || [];
+
       const activeBanners = allBanners
-  .filter((banner: Banner) => banner.isActive)
-  .sort((a: Banner, b: Banner) => (a.order ?? 0) - (b.order ?? 0));
+        .filter((banner) => banner.isActive === true)
+        .map((b) => ({ ...b, image: normalizeImage(b.image) }))
+        .sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+
       setBanners(activeBanners);
     } catch (err) {
-      setError('Không thể tải banner');
-      console.error('Error fetching banners:', err);
+      setError("Không thể tải banner");
+      console.error("Error fetching banners:", err);
     } finally {
       setLoading(false);
     }
   }, []);
 
-  // Fetch banners khi component mount
   useEffect(() => {
     fetchBanners();
   }, [fetchBanners]);
 
-  // Polling để đồng bộ real-time (mỗi 30 giây)
   useEffect(() => {
-    const interval = setInterval(() => {
-      fetchBanners();
-    }, 30000); // 30 giây
-
+    const interval = setInterval(fetchBanners, 30000);
     return () => clearInterval(interval);
   }, [fetchBanners]);
 
-  // Lắng nghe event từ Admin panel (nếu có)
   useEffect(() => {
-    const handleBannerUpdate = () => {
-      fetchBanners();
-    };
-
-    window.addEventListener('banners-updated', handleBannerUpdate);
-    return () => {
-      window.removeEventListener('banners-updated', handleBannerUpdate);
-    };
+    const handleBannerUpdate = () => fetchBanners();
+    window.addEventListener("banners-updated", handleBannerUpdate);
+    return () => window.removeEventListener("banners-updated", handleBannerUpdate);
   }, [fetchBanners]);
 
-  const refetch = useCallback(() => {
-    fetchBanners();
-  }, [fetchBanners]);
-
-  return {
-    banners,
-    loading,
-    error,
-    refetch,
-  };
-}; 
+  return { banners, loading, error, refetch: fetchBanners };
+};
